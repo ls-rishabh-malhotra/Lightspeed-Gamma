@@ -1,55 +1,104 @@
 import os
+import json
 import image_ingestion as ingest_img
 import get_image_embedding as embed_img
 from annoy import AnnoyIndex
-
-ANNOY_VECTOR_DIMENSIONS = 2048
-ANNOY_METRICS = ['angular', 'euclidean', 'manhattan', 'hamming', 'dot']
+from argparse import ArgumentParser
+from Constants import ANNOY_VECTOR_DIMENSIONS, ANNOY_METRICS, ANNOY_METRIC_IN_USE, WRITE_PERMISSIONS, IMG_DIR_IDX, INDX_DIR, INDX_METADATA_FILE, INDX_FILE, NUM_IMAGES
 
 def get_vectors_all_imgs(model, args, batch):
-    ids, imgs, img_fnames = zip(*batch)
-    return embed_img.generate_image_feature_vectors(
+    ids, imgs, imgFnames = zip(*batch)
+    imgFeatureVectors = embed_img.generate_image_feature_vectors(
         model,
         imgs
     ).numpy()
-    return img_feature_vectors
+    return imgFeatureVectors, ids, imgFnames
 
+def populateIndex(imgFeatureVectors, index, indexMetadata, ids, imgFnames):
+    print("ids are " + str(ids))
+    for ind, featureVector in enumerate(imgFeatureVectors):
+        index.add_item(ids[ind], featureVector.tolist())
+        indexMetadata[ids[ind]] = {
+            'fname': imgFnames[ind]
+        }
 
 def main(args):
     index = AnnoyIndex(
         ANNOY_VECTOR_DIMENSIONS,
-        ANNOY_METRICS[1]
+        ANNOY_METRICS[ANNOY_METRIC_IN_USE-1]
     )
-    index_metadata = {}
+    indexMetadata = {}
 
-    cur_model = embed_img.load_model()
+    curModel = embed_img.load_model()
 
     batch = []
     total_size = 0
 
-    for i, f_name in enumerate(os.listdir(args.images_dir)):
-        if not (f_name.endsWith('.jpg') or f_name.endsWith('.png') or f_name.endsWith('.jpeg')):
-            # This file is not a valid image to be passed
-            # TODO Handle this case but for now, pass everything on
+    for i, fname in enumerate(os.listdir(args.images_dir)):
+        if not (fname.endswith('.jpg') or fname.endswith('.png') or fname.endswith('.jpeg')):
+            # This file is not a valid image to be passed so ignore
+            print(str(fname) + " is not a valid image type. Please check this file again.")
             continue
 
-        img_path = os.path.join(args.images_dir, f_name)
+        imgPath = os.path.join(args.images_dir, fname)
 
         try:
-            img = ingest_img.ingest_image(img_path)
-            batch.append((i, img, f_name))
+            img = ingest_img.ingest_image(imgPath)
+            batch.append((i, img, fname))
         except Exception as e:
             print(e)
             continue
         
         if len(batch) == args.batch_size:
             total_size += len(batch)
-            print("Process batch: " + str(total_size))
+            print("Processing batch: " + str(total_size) + " .......")
             # Get vectors with activation figures for images
             # with simple forward pass from our imagenet DNN
-            img_feature_vectors = get_vectors_all_imgs(
-                cur_model,
+            imgFeatureVectors, ids, imgFnames = get_vectors_all_imgs(
+                curModel,
                 args,
                 batch
             )
-    pass
+
+            populateIndex(
+                imgFeatureVectors, 
+                index, 
+                indexMetadata, 
+                ids, 
+                imgFnames
+            )
+            
+            # Existing batch is finished indexing
+            print("Finished indexing batch: " + str(total_size) + " ......")
+            batch = []
+
+            if total_size >= args.max_items:
+                break
+
+
+    print("Building Index on given Images......")
+    index.build(args.n_trees)
+    print("Saving Index as mmap........")
+    index.save(
+        os.path.join(args.dst, INDX_FILE)
+    )
+    json.dump(
+        indexMetadata,
+        open(
+            os.path.join(args.dst, INDX_METADATA_FILE), 
+            WRITE_PERMISSIONS
+        )
+    )
+
+
+
+# Execute
+if __name__ == '__main__':
+    parser = ArgumentParser()
+    parser.add_argument('--images-dir', type=str, default=IMG_DIR_IDX)
+    parser.add_argument('--dst', type=str, default=INDX_DIR)
+    parser.add_argument('--batch-size', type=int, default=NUM_IMAGES)
+    parser.add_argument('--n-trees', type=int, default=10)
+    parser.add_argument('--max-items', type=int, default=10000)
+
+    main(parser.parse_args())
