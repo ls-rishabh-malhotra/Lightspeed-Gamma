@@ -15,8 +15,7 @@
 import tensorflow as tf
 import tensorflow_hub as tf_hub
 import numpy as np
-
-TFHUB_RESNET50_PRETRAINED_MODEL = "https://tfhub.dev/tensorflow/resnet_50/feature_vector/1"
+from Constants import TFHUB_RESNET50_PRETRAINED_MODEL
 
 # We want the most accurate cast here, so we use a float32 which provides 
 # reasonably high decimal accuracy. This will be useful in avoiding common 
