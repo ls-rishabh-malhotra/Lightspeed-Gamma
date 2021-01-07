@@ -12,6 +12,8 @@ def get_vectors_all_imgs(model, args, batch):
         model,
         imgs
     ).numpy()
+    print("TESTING--------")
+    print(str(ids))
     return imgFeatureVectors, ids, imgFnames
 
 def populateIndex(imgFeatureVectors, index, indexMetadata, ids, imgFnames):
@@ -43,7 +45,7 @@ def main(args):
         imgPath = os.path.join(args.images_dir, fname)
 
         try:
-            img = ingest_img.ingest_image(imgPath)
+            img = ingest_img.ingest_image_from_local_path(imgPath)
             batch.append((i, img, fname))
         except Exception as e:
             print(e)
