@@ -25,3 +25,8 @@
 3b) Simultaneously, use the response from the LS API to add secondary index to cross ref uids.
 
 Most importantly, have fun!
+
+
+## Acknowledgements[WIP]:
+[Spotify's Annoy](https://github.com/spotify/annoy) has been immensely useful for indexing and getting vector comparisons, currently using min euclidean distance.
+Since it is currently undergoing some compile issues , a fork, modified locally has been used and consequentially included in this repo. (We are to use the installation from this fork)
