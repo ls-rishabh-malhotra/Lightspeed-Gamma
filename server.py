@@ -15,6 +15,7 @@ from Constants import *
 
 MODE = RUN_MODE.LOCAL_TERMINAL_TEST
 IMG_PATH_TO_TEST = TEST_IMG_PATH
+FORCE_REBUILD_INDX = False
 
 curModel = None
 imgs_index = None
@@ -72,6 +73,9 @@ def get_image_match():
     print(img_feature_embedding_vector)
     
     # Next, build the index + retrieve in memory, if we dont already hold that as mmap
+    if FORCE_REBUILD_INDX:
+        os.remove(INDX_FILE)
+        os.remove(INDX_METADATA_FILE)
     index, index_metadata = get_index()
     
     ids = index.get_nns_by_vector(img_feature_embedding_vector, 1)
