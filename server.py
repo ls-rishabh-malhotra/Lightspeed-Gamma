@@ -27,17 +27,7 @@ def get_model():
 
 def get_index():
     global imgs_index
-    if not os.path.exists(INDX_FILE):
-        print("no index found!!! Building now")
-        parser = ArgumentParser()
-        parser.add_argument('--images-dir', type=str, default=IMG_DIR_IDX)
-        parser.add_argument('--dst', type=str, default=INDX_DIR)
-        parser.add_argument('--batch-size', type=int, default=NUM_IMAGES)
-        parser.add_argument('--n-trees', type=int, default=10)
-        parser.add_argument('--max-items', type=int, default=10000)
-
-        annoyIndexInstance, annoyIndexMetadata = build_index(parser.parse_args())
-    else:
+    if os.path.exists(INDX_FILE) and os.path.exists(INDX_METADATA_FILE):
         print("Index found!")
         annoyIndexInstance = AnnoyIndex(
             ANNOY_VECTOR_DIMENSIONS, 
@@ -49,6 +39,17 @@ def get_index():
         )
 
         annoyIndexMetadata = {int(k): v for (k, v) in annoyIndexMetadata.items()}
+    
+    else:
+        print("no index found!!! Building now")
+        parser = ArgumentParser()
+        parser.add_argument('--images-dir', type=str, default=IMG_DIR_IDX)
+        parser.add_argument('--dst', type=str, default=INDX_DIR)
+        parser.add_argument('--batch-size', type=int, default=NUM_IMAGES)
+        parser.add_argument('--n-trees', type=int, default=10)
+        parser.add_argument('--max-items', type=int, default=10000)
+
+        annoyIndexInstance, annoyIndexMetadata = build_index(parser.parse_args())
 
     imgs_index = (annoyIndexInstance, annoyIndexMetadata)
     return imgs_index
