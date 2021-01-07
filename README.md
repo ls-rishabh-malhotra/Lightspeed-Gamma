@@ -5,9 +5,6 @@
 3) Next, go inside annoy/ and then pip3 install [Because this is a local fork that compiles and we want to install this copy of annoy]
 4) Once this is done, all required dependencies should be installed
 
-5) Now, to run, first build the index by running build_index.py
-6) Once the index is built, you can test it by running server.py
-
 ## TO RUN:
 
 1) Do you want to link the server straight to the website or run it locally to test first? Set the RUN_MODE in Constants.RUN_MODE first
