@@ -4,7 +4,7 @@ import image_ingestion as ingest_img
 import get_image_embedding as embed_img
 from annoy import AnnoyIndex
 from argparse import ArgumentParser
-from Constants import ANNOY_VECTOR_DIMENSIONS, ANNOY_METRICS, ANNOY_METRIC_IN_USE, WRITE_PERMISSIONS, IMG_DIR_IDX, INDX_DIR, INDX_METADATA_FILE, INDX_FILE, NUM_IMAGES
+from Constants import RUN_MODE, ANNOY_VECTOR_DIMENSIONS, ANNOY_METRICS, ANNOY_METRIC_IN_USE, WRITE_PERMISSIONS, IMG_DIR_IDX, INDX_DIR, INDX_METADATA_FILE, INDX_FILE, NUM_IMAGES, BUILD_INDX_SEPARATELY
 
 def get_vectors_all_imgs(model, args, batch):
     ids, imgs, imgFnames = zip(*batch)
@@ -12,19 +12,17 @@ def get_vectors_all_imgs(model, args, batch):
         model,
         imgs
     ).numpy()
-    print("TESTING--------")
-    print(str(ids))
+    # Infuse API call ids here
     return imgFeatureVectors, ids, imgFnames
 
 def populateIndex(imgFeatureVectors, index, indexMetadata, ids, imgFnames):
-    print("ids are " + str(ids))
     for ind, featureVector in enumerate(imgFeatureVectors):
         index.add_item(ids[ind], featureVector.tolist())
-        indexMetadata[ids[ind]] = {
+        indexMetadata[int(ids[ind])] = {
             'fname': imgFnames[ind]
         }
 
-def main(args):
+def build_index(args):
     index = AnnoyIndex(
         ANNOY_VECTOR_DIMENSIONS,
         ANNOY_METRICS[ANNOY_METRIC_IN_USE-1]
@@ -39,7 +37,8 @@ def main(args):
     for i, fname in enumerate(os.listdir(args.images_dir)):
         if not (fname.endswith('.jpg') or fname.endswith('.png') or fname.endswith('.jpeg')):
             # This file is not a valid image to be passed so ignore
-            print(str(fname) + " is not a valid image type. Please check this file again.")
+            if RUN_MODE.LOCAL_TERMINAL_TEST:
+                print(str(fname) + " is not a valid image type. Ignoring this one.")
             continue
 
         imgPath = os.path.join(args.images_dir, fname)
@@ -91,16 +90,18 @@ def main(args):
             WRITE_PERMISSIONS
         )
     )
+    return (index, indexMetadata)
 
 
 
 # Execute
 if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument('--images-dir', type=str, default=IMG_DIR_IDX)
-    parser.add_argument('--dst', type=str, default=INDX_DIR)
-    parser.add_argument('--batch-size', type=int, default=NUM_IMAGES)
-    parser.add_argument('--n-trees', type=int, default=10)
-    parser.add_argument('--max-items', type=int, default=10000)
+    if BUILD_INDX_SEPARATELY:
+        parser = ArgumentParser()
+        parser.add_argument('--images-dir', type=str, default=IMG_DIR_IDX)
+        parser.add_argument('--dst', type=str, default=INDX_DIR)
+        parser.add_argument('--batch-size', type=int, default=NUM_IMAGES)
+        parser.add_argument('--n-trees', type=int, default=10)
+        parser.add_argument('--max-items', type=int, default=10000)
 
-    main(parser.parse_args())
+        build_index(parser.parse_args())

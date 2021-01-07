@@ -2,6 +2,7 @@ import os
 import json
 import numpy as np
 from PIL import Image
+from argparse import ArgumentParser
 import tensorflow as tf
 import tensorflow_hub as hub
 from annoy import AnnoyIndex
@@ -9,9 +10,10 @@ from io import BytesIO
 from flask import Flask, jsonify, request, render_template, send_file, make_response
 from get_image_embedding import load_model
 from image_ingestion import resize_img, ingest_image_from_local_path, show_image
+from build_index import build_index
 from Constants import *
 
-MODE = RUN_MODE.LINK_TO_WEBSITE
+MODE = RUN_MODE.LOCAL_TERMINAL_TEST
 IMG_PATH_TO_TEST = TEST_IMG_PATH
 
 curModel = None
@@ -25,7 +27,18 @@ def get_model():
 
 def get_index():
     global imgs_index
-    if not imgs_index:
+    if not os.path.exists(INDX_FILE):
+        print("no index found!!! Building now")
+        parser = ArgumentParser()
+        parser.add_argument('--images-dir', type=str, default=IMG_DIR_IDX)
+        parser.add_argument('--dst', type=str, default=INDX_DIR)
+        parser.add_argument('--batch-size', type=int, default=NUM_IMAGES)
+        parser.add_argument('--n-trees', type=int, default=10)
+        parser.add_argument('--max-items', type=int, default=10000)
+
+        annoyIndexInstance, annoyIndexMetadata = build_index(parser.parse_args())
+    else:
+        print("Index found!")
         annoyIndexInstance = AnnoyIndex(
             ANNOY_VECTOR_DIMENSIONS, 
             ANNOY_METRICS[ANNOY_METRIC_IN_USE-1]
@@ -36,8 +49,8 @@ def get_index():
         )
 
         annoyIndexMetadata = {int(k): v for (k, v) in annoyIndexMetadata.items()}
-        imgs_index = (annoyIndexInstance, annoyIndexMetadata)
-        
+
+    imgs_index = (annoyIndexInstance, annoyIndexMetadata)
     return imgs_index
 
 def open_img_file(imgData):
@@ -61,20 +74,23 @@ def get_image_match():
     index, index_metadata = get_index()
     
     ids = index.get_nns_by_vector(img_feature_embedding_vector, 1)
-    
     resData = {'item matched': [{'id': id, 'metadata': index_metadata.get(id, None)} for id in ids]}
     image_matched_response = make_response(
         jsonify(resData)
     )
 
     # show response:
-    print(json.loads(image_matched_response.data))
-    itemIdMatched = resData['item matched'][0]['id']
-    imageNameMatched = resData['item matched'][0]['metadata']['fname']
-    imgPathToOpen = IMG_DIR_IDX + str(imageNameMatched)
-    print("This is the image for item id " + str(itemIdMatched) + " matched from the index: \n")
-    img = Image.open(imgPathToOpen)
-    show_image(img)
+    if (RUN_MODE.LOCAL_TERMINAL_TEST):
+        itemIdMatched = resData['item matched'][0]['id']
+        imageNameMatched = resData['item matched'][0]['metadata']['fname']
+        imgPathToOpen = IMG_DIR_IDX + str(imageNameMatched)
+        
+        print(json.loads(image_matched_response.data))
+        print("This is the image for item id " + str(itemIdMatched) + " matched from the index: \n")
+        
+        img = Image.open(imgPathToOpen)
+        show_image(img)
+
     return image_matched_response
 
 
