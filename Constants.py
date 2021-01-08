@@ -25,8 +25,11 @@ IMG_TEST_DIR = "/Volumes/Development/python3-lightspeed-gamma/test_images/"
 TEST_IMG_NAME_1 = "gucci-diamond-belt-test.jpg"
 TEST_IMG_NAME_2 = "gucci-diamond-belt-rotate-test.jpg"
 TEST_IMG_NAME_3 = "gucci-brown-belt-test.jpg"
+TEST_IMG_NAME_4 = "gucci-brown-belt-test-rotate.jpg"
+TEST_IMG_NAME_5 = "12156620_10148184_1000-test.jpg"
+TEST_IMG_NAME_6 = "12156620_10148184_1000-test-rotate.jpg"
 
-TEST_IMG_PATH = IMG_TEST_DIR + TEST_IMG_NAME_3
+TEST_IMG_PATH = IMG_TEST_DIR + TEST_IMG_NAME_6
 
 INDX_DIR = "."
 INDX_METADATA_FILE = 'index_metadata.json'

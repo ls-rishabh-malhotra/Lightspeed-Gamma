@@ -14,6 +14,7 @@ from build_index import build_index
 from Constants import *
 
 MODE = RUN_MODE.LOCAL_TERMINAL_TEST
+
 IMG_PATH_TO_TEST = TEST_IMG_PATH
 FORCE_REBUILD_INDX = False
 
@@ -79,14 +80,14 @@ def get_image_match():
     index, index_metadata = get_index()
     
     ids = index.get_nns_by_vector(img_feature_embedding_vector, 1)
-    resData = {'item matched': [{'id': id, 'metadata': index_metadata.get(id, None)} for id in ids]}
+    resData = {'item matched': [{'lightspeedItemID': id, 'metadata': index_metadata.get(id, None)} for id in ids]}
     image_matched_response = make_response(
         jsonify(resData)
     )
 
     # show response:
     if (RUN_MODE.LOCAL_TERMINAL_TEST):
-        itemIdMatched = resData['item matched'][0]['id']
+        itemIdMatched = resData['item matched'][0]['lightspeedItemID']
         imageNameMatched = resData['item matched'][0]['metadata']['fname']
         imgPathToOpen = IMG_DIR_IDX + str(imageNameMatched)
         
