@@ -37,7 +37,7 @@ func initEcho() *echo.Echo {
 	// CORS
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
-		AllowMethods: []string{echo.POST},
+		AllowMethods: []string{echo.POST, echo.GET},
 	}))
 
 	return e
