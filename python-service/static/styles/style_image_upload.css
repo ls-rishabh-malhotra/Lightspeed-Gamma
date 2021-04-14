@@ -1,0 +1,167 @@
+@import url(//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css);
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/sourcecodepro/v13/HI_SiYsKILxRpg3hIP6sJ7fM7PqlPevT.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  src: url(https://fonts.gstatic.com/s/sourcecodepro/v13/HI_XiYsKILxRpg3hIP6sJ7fM7PqtzsjDs-cv.ttf) format('truetype');
+}
+@-webkit-keyframes roll {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+    transform: translate(-150%, -50%) rotate(-90deg) scale(0.3);
+    box-shadow: none;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  }
+}
+@keyframes roll {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+    transform: translate(-150%, -50%) rotate(-90deg) scale(0.3);
+    box-shadow: none;
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  }
+}
+main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0 auto;
+  padding: 0 26px;
+  width: 100%;
+  height: 100%;
+  background: rgba(154,57,163,1);
+  background: -moz-linear-gradient(-45deg, rgba(154,57,163,1) 0%, rgba(65,103,168,1) 100%);
+  background: -webkit-gradient(left top, right bottom, color-stop(0%, rgba(154,57,163,1)), color-stop(100%, rgba(65,103,168,1)));
+  background: -webkit-linear-gradient(-45deg, rgba(154,57,163,1) 0%, rgba(65,103,168,1) 100%);
+  background: -o-linear-gradient(-45deg, rgba(154,57,163,1) 0%, rgba(65,103,168,1) 100%);
+  background: -ms-linear-gradient(-45deg, rgba(154,57,163,1) 0%, rgba(65,103,168,1) 100%);
+  background: linear-gradient(135deg, rgba(154,57,163,1) 0%, rgba(65,103,168,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9a39a3', endColorstr='#4167a8', GradientType=1 );
+}
+body {
+  background: #1abc9c;
+}
+* {
+  box-sizing: border-box;
+}
+h1 {
+  display: block;
+  position: fixed;
+  left: 41.5%;
+  top: 19%;
+  text-align: center;
+  font-size: 3.92em;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  color: #f83a3a;
+}
+.wrapper {
+  -webkit-animation: roll 1.5s;
+          animation: roll 1.5s;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 25px;
+  background: #16a085;
+  border-radius: 50%;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+}
+.wrapper:active #img-result {
+  margin-top: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.wrapper #img-result {
+  cursor: pointer;
+  margin: 0;
+  position: relative;
+  background: #1abc9c;
+  background-size: cover;
+  background-position: center;
+  display: block;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  color: rgba(0, 0, 0, 0);
+  transition: box-shadow 0.3s, margin 0.3s, background-image 1.5s;
+}
+.wrapper #img-result.no-image:before {
+  font-family: 'FontAwesome';
+  content: "\f030";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: #fff;
+  font-size: 48px;
+  opacity: 0.8;
+  transform: translate(-50%, -50%);
+  text-shadow: 0 0px 5px rgba(0, 0, 0, 0.4);
+}
+.wrapper button {
+  margin-top: 20px;
+  display: block;
+  font-family: 'Open Sans Condensed', sans-serif;
+  background: #1abc9c;
+  width: 100%;
+  border: none;
+  color: #fff;
+  padding: 10px;
+  letter-spacing: 1.3px;
+  font-size: 1.05em;
+  border-radius: 5px;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.3);
+  outline: 0;
+  transition: box-shadow 0.3s, margin-top 0.3s, padding 0.3s;
+}
+.wrapper button:active {
+  box-shadow: none;
+  margin-top: 24px;
+  padding: 8px;
+}
+.show-button {
+  background: #b93a7ea6;
+  margin-top : 40%;
+  margin-right : 45.2%;
+  border: none;
+  color: #fff;
+  padding: 20px 40px;
+  float: right;
+  display: none;
+  font-size : 18px;
+}
+.upload-result {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  overflow-y: auto;
+}
+.upload-result__content {
+  word-break: break-all;
+  font-family: 'Source Code Pro';
+  overflow-wrap: break-word;
+}

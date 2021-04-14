@@ -1,13 +1,19 @@
 package routes
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 
+	"cloud.google.com/go/storage"
 	"github.com/labstack/echo"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
 )
+
+const gcsBucketName = "ls-inno-week-gamma-image-upload"
+const imageName = "imgToQuery.jpg"
 
 type Router interface {
 	Map()
@@ -44,31 +50,46 @@ func readinessCheck(c echo.Context) error {
 
 
 func queryProductInfo(c echo.Context) error {
+	ctx := context.Background()
+
 	file, err := c.FormFile("file")
 	if err != nil {
-		// handle error
+		fmt.Println("file could not be fetched from form")
+		fmt.Println(err)
 	}
 
-	// send file to gamma endpoint and parse response
-
-	// mock implementation to prevent error of file not being used
-	src, err := file.Open()
+	blobFile, err := file.Open()
 	if err != nil {
-		// handle error
+		fmt.Println("file could not be opened")
+		fmt.Println(err)
 	}
-	defer src.Close()
+	defer blobFile.Close()
 
-	dst, err := os.Create(file.Filename)
+
+	storageCredentials, err := google.FindDefaultCredentials(context.Background(), storage.ScopeReadWrite)
 	if err != nil {
-		// handle error
+		fmt.Println("could not find storage credentials")
+		fmt.Println(err)
 	}
-	defer dst.Close()
+	fmt.Println("found storage credentials")
 
-	if _, err = io.Copy(dst, src); err != nil {
-		return err
+	storageClient, err := storage.NewClient(context.Background(), option.WithCredentials(storageCredentials))
+	if err != nil {
+		fmt.Println("could not make storage client")
+	}
+	fmt.Println("successfully made storage client")
+
+	imgWriter := storageClient.Bucket(gcsBucketName).Object(imageName).NewWriter(ctx)
+	if _, err := io.Copy(imgWriter, blobFile); err != nil {
+		fmt.Println("failed to copy file to imgWriter")
+		fmt.Println(err)
+	}
+	if err := imgWriter.Close(); err != nil {
+		fmt.Println("failed to close imgWriter")
+		fmt.Println(err)
 	}
 
-	return c.JSON(http.StatusOK, fmt.Sprintf("File %s uploaded successfully.", file.Filename))
+	return c.JSON(http.StatusOK, "uploaded to bucket")
 }
 
 
