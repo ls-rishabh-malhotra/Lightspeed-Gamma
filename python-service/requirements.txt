@@ -1,9 +1,0 @@
-pillow==8.1.0
-Flask==1.1.2
-numpy==1.19.4
-argparse==1.4.0
-tensorflow==2.4.0
-# For Annoy, logged issue with Spotify, they will need to fix this,
-# In the meantime, I've forked, fixed it and installed from
-# my fork.
-# annoy==1.17.0
