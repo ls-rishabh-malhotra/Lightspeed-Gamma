@@ -6,7 +6,7 @@ from Constants import *
 from google.cloud import pubsub_v1, storage
 from lookup_engine import get_image_match
 from flask import Flask, jsonify, request, render_template, send_file, make_response
-from crawler import cleanup, buildItemsAndImagesMap, fetchNewImagesFromItemImagesMap, fetchImage
+from crawler import cleanup, buildItemsAndImagesMap, fetchNewImagesFromItemImagesMap, fetchImage, getAllItems
 
 
 ################  Utilities  ################
@@ -59,8 +59,16 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
             )
             
             # 3) Lookup engine: Build the index + match against an index img
-            jsonResponse = get_image_match(DESTINATION_QUERY_PATH + imgName)
-            print(jsonResponse)
+            # jsonResponse = get_image_match(DESTINATION_QUERY_PATH + imgName).json()
+            # lightspeedItemIDMatched = jsonResponse["item matched"][0]["lightspeedItemID"]
+            lightspeedItemDataFromMatch = None
+            lightspeedItemIDMatched = get_image_match(DESTINATION_QUERY_PATH + imgName)
+            allItems= getAllItems()["Item"]
+            for item in allItems:
+                if item["itemID"] == str(lightspeedItemIDMatched):
+                    print(item)
+                    lightspeedItemDataFromMatch = item
+                    break
 
             # 4) Cleanup the query dir once done
             files = glob.glob(QUERY_IMG_DIR + '*')

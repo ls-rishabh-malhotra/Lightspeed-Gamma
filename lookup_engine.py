@@ -92,4 +92,5 @@ def get_image_match(queryImgPath= IMG_PATH_TO_TEST):
         img = Image.open(imgPathToOpen)
         show_image(img)
 
+    return ids[0]
     return image_matched_response
