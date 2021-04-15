@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import glob
 from Constants import *
 from google.cloud import pubsub_v1, storage
 from lookup_engine import get_image_match
@@ -17,6 +18,7 @@ def print_in_flask(s):
 
 def download_blob(source_blob_name, destination_file_name= DESTINATION_QUERY_IMGNAME, bucket_name= QUERY_IMG_BUCKET_NAME):
     storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
     return blob.download_to_filename(destination_file_name)
 
@@ -43,11 +45,10 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
             message = msg.message.data.decode('utf-8')
             attributes = msg.message.attributes
             imgName = attributes["objectId"]
-            
+
             # do your thing
             # 1) Crawler: Get reqd images(if any) from Lightspeed
             #    Retail into idx_images + build in memory map
-            # cleanup()
             buildItemsAndImagesMap()
             fetchNewImagesFromItemImagesMap()
 
@@ -60,6 +61,11 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
             # 3) Lookup engine: Build the index + match against an index img
             jsonResponse = get_image_match(DESTINATION_QUERY_PATH + imgName)
             print(jsonResponse)
+
+            # 4) Cleanup the query dir once done
+            files = glob.glob(QUERY_IMG_DIR + '*')
+            for f in files:
+                os.remove(f)
 
             subscriber.acknowledge(
                 request= {
