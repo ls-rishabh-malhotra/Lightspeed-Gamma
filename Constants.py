@@ -8,6 +8,9 @@ MODE = RUN_MODE.LOCAL_TERMINAL_TEST
 FORCE_REBUILD_INDX = False
 BUILD_INDX_SEPARATELY = False
 
+LOCALDEV_RAD_RETAIL_ACCT_1_URL = "https://rad.localdev/"
+BEARER_TOKEN_URL = LOCALDEV_RAD_RETAIL_ACCT_1_URL + "admin/auth/bearer"
+
 READ_PERMISSIONS = 'r'
 WRITE_PERMISSIONS = 'w'
 
@@ -43,3 +46,6 @@ NUM_IMAGES = len([name for name in os.listdir(IMG_DIR_IDX) if os.path.isfile(nam
 
 PROJECT_ID = "ls-sandbox-dev"
 SUBSCRIPTION_NAME = "client_activity-sub"
+QUERY_IMG_BUCKET_NAME = "ls-inno-week-gamma-image-upload"
+DESTINATION_QUERY_PATH = QUERY_IMG_DIR
+DESTINATION_QUERY_IMGNAME = DESTINATION_QUERY_PATH + 'xyz.jpg'

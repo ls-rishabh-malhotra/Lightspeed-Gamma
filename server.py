@@ -2,7 +2,7 @@ import os
 import json
 import time
 from Constants import *
-from google.cloud import pubsub_v1
+from google.cloud import pubsub_v1, storage
 from lookup_engine import get_image_match
 from flask import Flask, jsonify, request, render_template, send_file, make_response
 from crawler import cleanup, buildItemsAndImagesMap, fetchNewImagesFromItemImagesMap, fetchImage
@@ -14,6 +14,12 @@ def print_in_flask(s):
     import sys
     print(str(s), file=sys.stdout)
     return
+
+def download_blob(source_blob_name, destination_file_name= DESTINATION_QUERY_IMGNAME, bucket_name= QUERY_IMG_BUCKET_NAME):
+    storage_client = storage.Client()
+    blob = bucket.blob(source_blob_name)
+    return blob.download_to_filename(destination_file_name)
+
 
 def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME):
     """Polls a Cloud Pub/Sub subscription for new GCS events for display."""
@@ -35,31 +41,32 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
         pull_response= subscriber.pull(subscription=subscription_path, max_messages=10)
         for msg in pull_response.received_messages:
             message = msg.message.data.decode('utf-8')
-            print(message)
+            attributes = msg.message.attributes
+            imgName = attributes["objectId"]
             
-            # # do your thing
-            # # 1) Crawler: Get reqd images(if any) from Lightspeed
-            # #    Retail into idx_images + build in memory map
+            # do your thing
+            # 1) Crawler: Get reqd images(if any) from Lightspeed
+            #    Retail into idx_images + build in memory map
             # cleanup()
-            # buildItemsAndImagesMap()
-            # fetchNewImagesFromItemImagesMap()
+            buildItemsAndImagesMap()
+            fetchNewImagesFromItemImagesMap()
 
-            # # 2) Fetch query img from bucket into the relevant dir
+            # 2) Fetch query img from bucket into the relevant dir
+            download_blob(
+                source_blob_name= imgName,
+                destination_file_name= DESTINATION_QUERY_PATH + imgName
+            )
             
-
-            # # 3) Lookup engine: Build the index + match against an index img
-            # queryImgHeldAtPath = ''
-            # jsonResponse = get_image_match(queryImgHeldAtPath)
-            # print(jsonResponse)
+            # 3) Lookup engine: Build the index + match against an index img
+            jsonResponse = get_image_match(DESTINATION_QUERY_PATH + imgName)
+            print(jsonResponse)
 
             subscriber.acknowledge(
                 request= {
                     "subscription": subscription_path,
-                    "ackIds": [msg.ack_id]
+                    "ack_ids": [msg.ack_id]
                 }
             )
-
-        time.sleep(30)
 
 
     # [END poll_notifications]
