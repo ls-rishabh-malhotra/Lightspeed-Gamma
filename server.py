@@ -1,13 +1,12 @@
 import os
 import json
-from PIL import Image
-from annoy import AnnoyIndex
-from io import BytesIO
-from flask import Flask, jsonify, request, render_template, send_file, make_response
-from build_index import build_index
+import time
 from Constants import *
 from google.cloud import pubsub_v1
-import time
+from lookup_engine import get_image_match
+from flask import Flask, jsonify, request, render_template, send_file, make_response
+from crawler import cleanup, buildItemsAndImagesMap, fetchNewImagesFromItemImagesMap, fetchImage
+
 
 ################  Utilities  ################
 
@@ -19,12 +18,12 @@ def print_in_flask(s):
 def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME):
     """Polls a Cloud Pub/Sub subscription for new GCS events for display."""
     # [START poll_notifications]
+    # subscriber = pubsub_v1.SubscriberClient()
     subscriber = pubsub_v1.SubscriberClient()
     subscription_path = 'projects/{project}/subscriptions/{subscription}'.format(
         project= project, 
         subscription= subscription_name
     )
-    pull_response= subscriber.pull(subscription=subscription_path, max_messages=1)
 
     # subscriber.subscribe(subscription_path, callback=callback)
 
@@ -33,16 +32,34 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
     print("Listening for messages on {}".format(subscription_path))
     while True:
 
+        pull_response= subscriber.pull(subscription=subscription_path, max_messages=10)
         for msg in pull_response.received_messages:
             message = msg.message.data.decode('utf-8')
             print(message)
-            # do your thing
+            
+            # # do your thing
+            # # 1) Crawler: Get reqd images(if any) from Lightspeed
+            # #    Retail into idx_images + build in memory map
+            # cleanup()
+            # buildItemsAndImagesMap()
+            # fetchNewImagesFromItemImagesMap()
+
+            # # 2) Fetch query img from bucket into the relevant dir
+            
+
+            # # 3) Lookup engine: Build the index + match against an index img
+            # queryImgHeldAtPath = ''
+            # jsonResponse = get_image_match(queryImgHeldAtPath)
+            # print(jsonResponse)
+
             subscriber.acknowledge(
-                subscription_path, 
-                [msg.ack_id]
+                request= {
+                    "subscription": subscription_path,
+                    "ackIds": [msg.ack_id]
+                }
             )
 
-        time.sleep(1)
+        time.sleep(30)
 
 
     # [END poll_notifications]

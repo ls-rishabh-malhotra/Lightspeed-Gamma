@@ -33,6 +33,7 @@ INDX_FILE = 'index.ann'
 
 TEST_IMG_PATH = ""
 IMG_PATH_TO_TEST = TEST_IMG_PATH
+IMG_UVSET_DIR = IMG_DIR_IDX
 
 import os
 NUM_IMAGES = len([name for name in os.listdir(IMG_DIR_IDX) if os.path.isfile(name)])
