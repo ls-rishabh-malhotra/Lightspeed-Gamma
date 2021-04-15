@@ -23,6 +23,13 @@ def download_blob(source_blob_name, destination_file_name= DESTINATION_QUERY_IMG
     return blob.download_to_filename(destination_file_name)
 
 
+def delete_blob(source_blob_name, bucket_name= QUERY_IMG_BUCKET_NAME):
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    return blob.delete()
+
+
 def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME):
     """Polls a Cloud Pub/Sub subscription for new GCS events for display."""
     # [START poll_notifications]
@@ -70,7 +77,7 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
                     lightspeedItemDataFromMatch = item
                     break
 
-            # 4) Cleanup the query dir once done
+            # 4) Cleanup the query dir +bucket once done
             files = glob.glob(QUERY_IMG_DIR + '*')
             for f in files:
                 os.remove(f)
@@ -81,10 +88,11 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
                     "ack_ids": [msg.ack_id]
                 }
             )
-
+            delete_blob(source_blob_name= imgName)
+            
+            return lightspeedItemDataFromMatch
 
     # [END poll_notifications]
-
     return
 
 
@@ -100,7 +108,7 @@ def index():
 if __name__ == "__main__":
     if (MODE == RUN_MODE.LOCAL_TERMINAL_TEST):
         with app.app_context():
-            poll_notifications() #get_image_match()
+            poll_notifications()
     elif (MODE == RUN_MODE.LINK_TO_WEBSITE):
         app.run(debug=True)
     else:
