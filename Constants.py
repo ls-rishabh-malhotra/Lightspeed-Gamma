@@ -3,6 +3,9 @@ class RUN_MODE(enum.Enum):
    LOCAL_TERMINAL_TEST = "SERVER_OUTPUT_MODE"
    LINK_TO_WEBSITE = "WEBPAGE_MODE"
 
+MODE = RUN_MODE.LOCAL_TERMINAL_TEST
+
+FORCE_REBUILD_INDX = False
 BUILD_INDX_SEPARATELY = False
 
 READ_PERMISSIONS = 'r'
@@ -19,21 +22,23 @@ IMG_CONVERTED_HEIGHT = 224
 INFER_DIMENSION_FROM_IMG = -1
 COLOR_SPACE = 3 #RGB
 
-IMG_DIR_IDX = "/Volumes/Development/python3-lightspeed-gamma/index_images/"
-IMG_TEST_DIR = "/Volumes/Development/python3-lightspeed-gamma/test_images/"
-
-TEST_IMG_NAME_1 = "gucci-diamond-belt-test.jpg"
-TEST_IMG_NAME_2 = "gucci-diamond-belt-rotate-test.jpg"
-TEST_IMG_NAME_3 = "gucci-brown-belt-test.jpg"
-TEST_IMG_NAME_4 = "gucci-brown-belt-test-rotate.jpg"
-TEST_IMG_NAME_5 = "12156620_10148184_1000-test.jpg"
-TEST_IMG_NAME_6 = "12156620_10148184_1000-test-rotate.jpg"
-
-TEST_IMG_PATH = IMG_TEST_DIR + TEST_IMG_NAME_6
+GAMMA_IDX = "/Volumes/Development/inno_weeks/Lightspeed-Gamma/"
+IMG_DIR_IDX = GAMMA_IDX + "index_images/"
+IMG_TEST_DIR = GAMMA_IDX + "test_images/"
+QUERY_IMG_DIR = GAMMA_IDX + "query_images/"
 
 INDX_DIR = "."
 INDX_METADATA_FILE = 'index_metadata.json'
 INDX_FILE = 'index.ann'
 
+TEST_IMG_PATH = ""
+IMG_PATH_TO_TEST = TEST_IMG_PATH
+
 import os
 NUM_IMAGES = len([name for name in os.listdir(IMG_DIR_IDX) if os.path.isfile(name)])
+
+
+################  Google Cloud Configs  ################
+
+PROJECT_ID = "ls-sandbox-dev"
+SUBSCRIPTION_NAME = "client_activity-sub"
