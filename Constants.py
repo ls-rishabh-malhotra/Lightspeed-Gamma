@@ -5,7 +5,7 @@ class RUN_MODE(enum.Enum):
 
 MODE = RUN_MODE.LOCAL_TERMINAL_TEST
 
-FORCE_REBUILD_INDX = False
+FORCE_REBUILD_INDX = True
 BUILD_INDX_SEPARATELY = False
 
 RAD_LOCAL = "https://rad.localdev/"
