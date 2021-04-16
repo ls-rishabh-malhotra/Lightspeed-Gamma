@@ -56,10 +56,14 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
             # do your thing
             # 1) Crawler: Get reqd images(if any) from Lightspeed
             #    Retail into idx_images + build in memory map
+            time.sleep(3)
+            print("\n-------- Crawler: checking LS Retail POS for new item images --------\n")
             buildItemsAndImagesMap()
             fetchNewImagesFromItemImagesMap()
 
             # 2) Fetch query img from bucket into the relevant dir
+            time.sleep(3)
+            print("\n-------- Crawler: Fetching query image to find details --------\n")
             download_blob(
                 source_blob_name= imgName,
                 destination_file_name= DESTINATION_QUERY_PATH + imgName
@@ -68,6 +72,8 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
             # 3) Lookup engine: Build the index + match against an index img
             # jsonResponse = get_image_match(DESTINATION_QUERY_PATH + imgName).json()
             # lightspeedItemIDMatched = jsonResponse["item matched"][0]["lightspeedItemID"]
+            time.sleep(3)
+            print("\n-------- Lookup Engine: Building index + getting img match --------\n")
             lightspeedItemDataFromMatch = None
             lightspeedItemIDMatched = get_image_match(DESTINATION_QUERY_PATH + imgName)
             allItems= getAllItems()["Item"]
@@ -82,12 +88,17 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
             for f in files:
                 os.remove(f)
 
+            time.sleep(3)
+            print("\n-------- Service: Acking pubsub query event message --------\n")
             subscriber.acknowledge(
                 request= {
                     "subscription": subscription_path,
                     "ack_ids": [msg.ack_id]
                 }
             )
+
+            time.sleep(3)
+            print("\n-------- Service: Clearing query for next image --------\n")
             delete_blob(source_blob_name= imgName)
 
             return lightspeedItemDataFromMatch
