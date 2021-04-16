@@ -73,7 +73,7 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
             allItems= getAllItems()["Item"]
             for item in allItems:
                 if item["itemID"] == str(lightspeedItemIDMatched):
-                    print(item)
+                    print(json.dumps(item, indent=4, sort_keys=False))
                     lightspeedItemDataFromMatch = item
                     break
 
@@ -89,7 +89,7 @@ def poll_notifications(project= PROJECT_ID, subscription_name= SUBSCRIPTION_NAME
                 }
             )
             delete_blob(source_blob_name= imgName)
-            
+
             return lightspeedItemDataFromMatch
 
     # [END poll_notifications]
