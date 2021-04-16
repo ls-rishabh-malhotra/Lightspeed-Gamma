@@ -10,8 +10,12 @@
 1) Do you want to link the server straight to the website or run it locally to test first? Set the RUN_MODE in Constants.RUN_MODE first
 2) Do you want the server to check for and build the index automatically if it doesnt exist? This is the default behaviour but to change it, consider looking at Constants.BUILD_INDX_SEPARATELY
 3) Now, simply run the server using `python3 server.py`
-4) Once the server is running, visit http://127.0.0.1:5000 to see the website. 
-(Note: pls close and reopen the website tab if you make changes to the frontend code, else the browser cache will still show the old version of the site)
+4) Once the server is running, it will await messages on the pubsub queue.
+5) Upload the image you want to query to [this google cloud bucket](https://console.cloud.google.com/storage/browser/ls-inno-week-gamma-image-upload;tab=objects?forceOnBucketsSortingFiltering=false&project=ls-sandbox-dev&prefix=&forceOnObjectsSortingFiltering=false). You can also use the Go service for this, esp if you are trying to hook your app up with Gamma!
+6) Keep in mind to have an item image in your local instance of LS RetailPOS which has the same item which you expect to be matched. Note that these do not have to be the same images. They can be 2 different images of the same item! (Try different angles, different lighting, etc)
+7) As soon as you upload an image to the bucket above, the server will pick up the cue and start the pipeline!
+8) After you are done running it, dont forget to purge any remaining messages from [here](https://console.cloud.google.com/cloudpubsub/subscription/detail/client_activity-sub?project=ls-sandbox-dev)
+9) Have fun exploring the limits of how different 2 images can be before gamma stops recognizing them!!
 
 
 ### NOTE: 
@@ -34,7 +38,8 @@ Most importantly, have fun!
 [Google Docs](https://docs.google.com/document/d/1w_aB0q9nkjY22v8v8daKB21QHwhlngmh7joU1tv3RME/edit#heading=h.2fmdi5b06xe0)
 
 ## Presentation:
-[Google Slides](https://docs.google.com/presentation/d/1YYlzK2OFNEffFBwaMvu-qxeWprjIGW7QqIHrcxSGGic/edit#slide=id.g3754f1d088_0_4)
+[INNO WEEK 1](https://docs.google.com/presentation/d/1YYlzK2OFNEffFBwaMvu-qxeWprjIGW7QqIHrcxSGGic/edit#slide=id.g3754f1d088_0_4)
+[INNO WEEK 2] (https://docs.google.com/presentation/d/1JKYsSvUIAk9Q2uOHEIL6uaKf4I-Qk8ekvsDxCzAvsSI/edit?ts=6078b2a4#slide=id.g3754f1d088_0_4)
 
 ## Acknowledgements:
 1.[Spotify's Annoy](https://github.com/spotify/annoy) has been immensely useful for indexing and getting vector comparisons, currently using min euclidean distance.
