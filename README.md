@@ -1,5 +1,8 @@
 # Lightspeed-Gamma
 
+<img width="1123" alt="Screen Shot 2021-08-21 at 10 07 19 AM" src="https://user-images.githubusercontent.com/75624553/130324332-d26c4e9b-113d-4e68-9c27-83281aa187a9.png">
+
+
 1) To install, first activate the Python3.8 venv
 2) Next, pip3 install -r requirements.txt
 3) Next, go inside annoy/ and then pip3 install [Because this is a local fork that compiles and we want to install this copy of annoy]
